@@ -4,6 +4,17 @@
  * @author Эльмира
  * @date 2025 декабрь
  * @version 1.0
+ * 
+ * @details
+ * Данная программа реализует класс для работы с квадратными полиномами вида ax² + bx + c.
+ * Предоставляет функциональность для:
+ * - Вычисления корней уравнений
+ * - Выполнения арифметических операций с полиномами
+ * - Сравнения полиномов
+ * - Сбора статистики вычислений
+ * - Управления динамической памятью
+ * 
+ * Программа включает интерактивное меню для тестирования всех возможностей класса.
  */
 
 #include <iostream>
@@ -13,30 +24,92 @@
 #include <cstdlib>
 
 /**
+ * @defgroup PolynomialClass Класс Polynomial
+ * @brief Основной класс для работы с квадратными полиномами
+ * @{
+ */
+
+/**
  * @class Polynomial
  * @brief Класс для представления квадратного полинома вида ax² + bx + c
+ * Класс инкапсулирует коэффициенты квадратного полинома и предоставляет:
+ * - Арифметические операции (+, -, *, /, +=, -=, *=, /=)
+ * - Операции инкремента/декремента (++, --)
+ * - Операции сравнения (<, >, <=, >=, ==, !=)
+ * - Вычисление корней уравнения
+ * - Вычисление значения полинома в точке
+ * - Статистику использования класса
+ * 
+ * @note Все статические данные класса автоматически очищаются при завершении программы
  */
 class Polynomial {
 private:
-    double a; 
-    double b; 
-    double c; 
+    double a; ///< Коэффициент при x²
+    double b; ///< Коэффициент при x
+    double c; ///< Свободный член
     
-    static int rootCalculationCount;     
-    static int instanceCount;            
-    
-    static char** deletedPolynomials;    
-    static int deletedCapacity;          
-    static int deletedCount;             
-    
-    static char** rootCalculations;      
-    static int rootCalculationsCapacity; 
-    static int rootCalculationEntries;   
-    
-    static bool programFinished;         
-
     /**
-     * @brief Добавляет информацию об удалённом полиноме в статический массив
+     * @var static int Polynomial::rootCalculationCount
+     * @brief Счетчик общего количества вычислений корней
+     * @details Увеличивается при каждом вызове метода findRoots()
+     */
+    static int rootCalculationCount;
+    
+    /**
+     * @var static int Polynomial::instanceCount
+     * @brief Счетчик созданных экземпляров класса
+     * @details Увеличивается в конструкторах, уменьшается в деструкторе
+     */
+    static int instanceCount;
+    
+    /**
+     * @var static char** Polynomial::deletedPolynomials
+     * @brief Динамический массив для хранения информации об удаленных полиномах
+     * @details Используется для финальной статистики
+     */
+    static char** deletedPolynomials;
+    
+    /**
+     * @var static int Polynomial::deletedCapacity
+     * @brief Текущая емкость массива deletedPolynomials
+     */
+    static int deletedCapacity;
+    
+    /**
+     * @var static int Polynomial::deletedCount
+     * @brief Количество элементов в массиве deletedPolynomials
+     */
+    static int deletedCount;
+    
+    /**
+     * @var static char** Polynomial::rootCalculations
+     * @brief Динамический массив для хранения записей о вычислениях корней
+     */
+    static char** rootCalculations;
+    
+    /**
+     * @var static int Polynomial::rootCalculationsCapacity
+     * @brief Текущая емкость массива rootCalculations
+     */
+    static int rootCalculationsCapacity;
+    
+    /**
+     * @var static int Polynomial::rootCalculationEntries
+     * @brief Количество записей в массиве rootCalculations
+     */
+    static int rootCalculationEntries;
+    
+    /**
+     * @var static bool Polynomial::programFinished
+     * @brief Флаг завершения программы
+     * @details Используется для определения момента вывода финальной статистики
+     */
+    static bool programFinished;
+    
+    /**
+     * @brief Добавляет информацию об удалённом полиноме в динамический массив
+     * @param polyInfo Строка с информацией о полиноме
+     * @private
      */
     static void addDeletedPolynomial(const std::string& polyInfo) {
         if (deletedCount >= deletedCapacity) {
@@ -62,6 +135,8 @@ private:
     
     /**
      * @brief Добавляет запись о вычислении корней в статический массив
+     * @param calcInfo Строка с информацией о вычислении
+     * @private
      */
     static void addRootCalculation(const std::string& calcInfo) {
         if (rootCalculationEntries >= rootCalculationsCapacity) {
@@ -88,6 +163,8 @@ private:
 public:
     /**
      * @brief Конструктор по умолчанию
+     * @details Создает полином с коэффициентами a=1, b=1, c=1
+     * @post Увеличивает счетчик instanceCount на 1
      */
     Polynomial() : a(1), b(1), c(1) {
         instanceCount++;
@@ -95,6 +172,9 @@ public:
     
     /**
      * @brief Конструктор с одним параметром
+     * @param constant Значение константы c
+     * @details Создает полином с коэффициентами a=0, b=0, c=constant
+     * @post Увеличивает счетчик instanceCount на 1
      */
     Polynomial(double constant) : a(0), b(0), c(constant) {
         instanceCount++;
@@ -102,6 +182,10 @@ public:
     
     /**
      * @brief Конструктор с тремя параметрами
+     * @param a_val Коэффициент при x²
+     * @param b_val Коэффициент при x
+     * @param c_val Свободный член
+     * @post Увеличивает счетчик instanceCount на 1
      */
     Polynomial(double a_val, double b_val, double c_val) 
         : a(a_val), b(b_val), c(c_val) {
@@ -110,6 +194,9 @@ public:
     
     /**
      * @brief Копирующий конструктор
+     * @param other Полином для копирования
+     * @post Создает глубокую копию полинома
+     * @post Увеличивает счетчик instanceCount на 1
      */
     Polynomial(const Polynomial& other) 
         : a(other.a), b(other.b), c(other.c) {
@@ -118,6 +205,9 @@ public:
     
     /**
      * @brief Оператор присваивания
+     * @param other Полином для копирования
+     * @return Ссылка на текущий объект
+     * @exception Не генерирует исключений
      */
     Polynomial& operator=(const Polynomial& other) {
         if (this != &other) {
@@ -130,6 +220,9 @@ public:
 
     /**
      * @brief Деструктор
+     * @details Добавляет информацию об удаленном полиноме в статический массив
+     * @post Уменьшает количество живых экземпляров
+     * @post При завершении программы выводит финальную статистику
      */
     ~Polynomial() {
         std::string polyInfo = "Polynomial #" + std::to_string(deletedCount + 1) + 
@@ -144,7 +237,14 @@ public:
     }
     
     /**
+     * @defgroup StaticMethods Статические методы
+     * @brief Методы для работы со статическими данными класса
+     * @{
+     */
+    
+    /**
      * @brief Устанавливает флаг завершения программы
+     * @param finished true - программа завершена, false - программа работает
      */
     static void setProgramFinished(bool finished) {
         programFinished = finished;
@@ -152,6 +252,11 @@ public:
     
     /**
      * @brief Выводит статистику вычисления корней
+     * @details Показывает:
+     * - Общее количество вычислений корней
+     * - Последнее вычисление
+     * - Предыдущее вычисление
+     * - Все вычисления в хронологическом порядке
      */
     static void showRootCalculationStats() {
         std::cout << "\n" << std::string(40, '=') << std::endl;
@@ -183,6 +288,11 @@ public:
     
     /**
      * @brief Выводит финальную статистику программы
+     * @details Вызывается автоматически при завершении программы
+     * Показывает:
+     * - Все удаленные полиномы
+     * - Все вычисления корней
+     * - Итоговую статистику
      */
     static void printFinalStatistics() {
         std::cout << "\n" << std::string(50, '=') << std::endl;
@@ -201,7 +311,7 @@ public:
         
         std::cout << "\n=== ROOT CALCULATIONS SUMMARY ===" << std::endl;
         if (rootCalculationEntries == 0) {
-            std::cout << "No root calculations were performed." << std::endl;
+            std::cout << "Ni odnogo kornya ne bili vichisleni." << std::endl;
         } else {
             for (int i = 0; i < rootCalculationEntries; i++) {
                 std::cout << i+1 << ". " << rootCalculations[i] << std::endl;
@@ -213,7 +323,9 @@ public:
     }
     
     /**
-     * @brief Очищает статические данные класса
+     * @brief Очищает все статические данные класса
+     * @details Освобождает динамическую память, сбрасывает счетчики
+     * @warning Должен вызываться только при завершении программы
      */
     static void cleanupStaticData() {
         for (int i = 0; i < deletedCount; i++) {
@@ -238,7 +350,44 @@ public:
     }
 
     /**
+     * @brief Возвращает количество вычислений корней
+     * @return Количество вызовов findRoots()
+     */
+    static int getRootCalculationCount() {
+        return rootCalculationCount;
+    }
+
+    /**
+     * @brief Возвращает количество созданных экземпляров
+     * @return Общее количество созданных объектов Polynomial
+     */
+    static int getInstanceCount() {
+        return instanceCount;
+    }
+
+    /**
+     * @brief Сбрасывает всю статистику
+     * @details Очищает все статические данные и сбрасывает счетчики
+     */
+    static void resetStatistics() {
+        cleanupStaticData();
+    }
+    
+    /** @} */ // конец группы StaticMethods
+
+    /**
      * @brief Находит корни квадратного уравнения
+     * @param[out] root1 Первый корень (если существует)
+     * @param[out] root2 Второй корень (если существует)
+     * @param[out] numRoots Количество действительных корней (0, 1 или 2)
+     * @details Вычисляет корни уравнения ax² + bx + c = 0
+     * Обрабатывает случаи:
+     * - a = 0 (линейное уравнение)
+     * - Дискриминант > 0 (два корня)
+     * - Дискриминант = 0 (один корень)
+     * - Дискриминант < 0 (нет действительных корней)
+     * @post Увеличивает rootCalculationCount на 1
+     * @post Добавляет запись в rootCalculations
      */
     void findRoots(double& root1, double& root2, int& numRoots) {
         ++rootCalculationCount;
@@ -278,7 +427,15 @@ public:
     }
 
     /**
+     * @defgroup UnaryOperators Унарные операторы
+     * @brief Операции инкремента и декремента
+     * @{
+     */
+    
+    /**
      * @brief Префиксный инкремент
+     * @return Ссылка на измененный полином
+     * @post Увеличивает все коэффициенты на 1
      */
     Polynomial& operator++() {
         ++a; ++b; ++c;
@@ -287,6 +444,8 @@ public:
 
     /**
      * @brief Постфиксный инкремент
+     * @return Копия полинома до изменения
+     * @post Увеличивает все коэффициенты на 1
      */
     Polynomial operator++(int) {
         Polynomial temp = *this;
@@ -296,6 +455,8 @@ public:
 
     /**
      * @brief Префиксный декремент
+     * @return Ссылка на измененный полином
+     * @post Уменьшает все коэффициенты на 1
      */
     Polynomial& operator--() {
         --a; --b; --c;
@@ -304,15 +465,27 @@ public:
 
     /**
      * @brief Постфиксный декремент
+     * @return Копия полинома до изменения
+     * @post Уменьшает все коэффициенты на 1
      */
     Polynomial operator--(int) {
         Polynomial temp = *this;
         --(*this);
         return temp;
     }
+    
+    /** @} */ // конец группы UnaryOperators
 
     /**
+     * @defgroup CompoundAssignment Составные операторы присваивания
+     * @brief Операторы вида @c operator@=
+     * @{
+     */
+    
+    /**
      * @brief Оператор сложения с присваиванием
+     * @param other Полином для сложения
+     * @return Ссылка на текущий объект
      */
     Polynomial& operator+=(const Polynomial& other) {
         a += other.a;
@@ -323,6 +496,8 @@ public:
 
     /**
      * @brief Оператор вычитания с присваиванием
+     * @param other Полином для вычитания
+     * @return Ссылка на текущий объект
      */
     Polynomial& operator-=(const Polynomial& other) {
         a -= other.a;
@@ -333,6 +508,8 @@ public:
 
     /**
      * @brief Оператор умножения на скаляр с присваиванием
+     * @param scalar Скаляр для умножения
+     * @return Ссылка на текущий объект
      */
     Polynomial& operator*=(double scalar) {
         a *= scalar;
@@ -343,6 +520,9 @@ public:
 
     /**
      * @brief Оператор деления на скаляр с присваиванием
+     * @param scalar Скаляр для деления
+     * @return Ссылка на текущий объект
+     * @throws std::invalid_argument если scalar = 0
      */
     Polynomial& operator/=(double scalar) {
         if (scalar == 0) {
@@ -353,9 +533,20 @@ public:
         c /= scalar;
         return *this;
     }
+    
+    /** @} */ // конец группы CompoundAssignment
 
     /**
-     * @brief Оператор сложения двух полиномов
+     * @defgroup ArithmeticOperations Арифметические операции
+     * @brief Бинарные арифметические операторы
+     * @{
+     */
+    
+    /**
+     * @brief Сложение двух полиномов
+     * @param lhs Левый операнд
+     * @param rhs Правый операнд
+     * @return Новый полином - сумма lhs и rhs
      */
     friend Polynomial operator+(Polynomial lhs, const Polynomial& rhs) {
         lhs += rhs;
@@ -363,7 +554,10 @@ public:
     }
 
     /**
-     * @brief Оператор вычитания двух полиномов
+     * @brief Вычитание двух полиномов
+     * @param lhs Левый операнд
+     * @param rhs Правый операнд
+     * @return Новый полином - разность lhs и rhs
      */
     friend Polynomial operator-(Polynomial lhs, const Polynomial& rhs) {
         lhs -= rhs;
@@ -371,7 +565,10 @@ public:
     }
 
     /**
-     * @brief Оператор умножения полинома на скаляр
+     * @brief Умножение полинома на скаляр
+     * @param lhs Полином
+     * @param scalar Скаляр
+     * @return Новый полином - произведение lhs и scalar
      */
     friend Polynomial operator*(Polynomial lhs, double scalar) {
         lhs *= scalar;
@@ -379,7 +576,10 @@ public:
     }
 
     /**
-     * @brief Оператор умножения скаляра на полином
+     * @brief Умножение скаляра на полином
+     * @param scalar Скаляр
+     * @param rhs Полином
+     * @return Новый полином - произведение scalar и rhs
      */
     friend Polynomial operator*(double scalar, const Polynomial& rhs) {
         Polynomial result = rhs;
@@ -388,95 +588,124 @@ public:
     }
 
     /**
-     * @brief Оператор деления полинома на скаляр
+     * @brief Деление полинома на скаляр
+     * @param lhs Полином
+     * @param scalar Скаляр
+     * @return Новый полином - частное lhs и scalar
+     * @throws std::invalid_argument если scalar = 0
      */
     friend Polynomial operator/(Polynomial lhs, double scalar) {
         lhs /= scalar;
         return lhs;
     }
+    
+    /** @} */ // конец группы ArithmeticOperations
 
     /**
-     * @brief Оператор "меньше" для полиномов
+     * @defgroup ComparisonOperations Операции сравнения
+     * @brief Операторы сравнения полиномов
+     * @details Все операторы сравнения работают на основе значения полинома в точке x=2
+     * @{
+     */
+    
+    /**
+     * @brief Оператор "меньше"
+     * @details Сравнивает значения полиномов в точке x=2
      */
     friend bool operator<(const Polynomial& lhs, const Polynomial& rhs) {
         return lhs.evaluate(2) < rhs.evaluate(2);
     }
 
     /**
-     * @brief Оператор "больше" для полиномов
+     * @brief Оператор "больше"
+     * @details Сравнивает значения полиномов в точке x=2
      */
     friend bool operator>(const Polynomial& lhs, const Polynomial& rhs) {
         return lhs.evaluate(2) > rhs.evaluate(2);
     }
 
     /**
-     * @brief Оператор "меньше или равно" для полиномов
+     * @brief Оператор "меньше или равно"
+     * @details Сравнивает значения полиномов в точке x=2
      */
     friend bool operator<=(const Polynomial& lhs, const Polynomial& rhs) {
         return lhs.evaluate(2) <= rhs.evaluate(2);
     }
 
     /**
-     * @brief Оператор "больше или равно" для полиномов
+     * @brief Оператор "больше или равно"
+     * @details Сравнивает значения полиномов в точке x=2
      */
     friend bool operator>=(const Polynomial& lhs, const Polynomial& rhs) {
         return lhs.evaluate(2) >= rhs.evaluate(2);
     }
 
     /**
-     * @brief Оператор равенства для полиномов
+     * @brief Оператор равенства
+     * @details Сравнивает значения полиномов в точке x=2
      */
     friend bool operator==(const Polynomial& lhs, const Polynomial& rhs) {
         return lhs.evaluate(2) == rhs.evaluate(2);
     }
 
     /**
-     * @brief Оператор неравенства для полиномов
+     * @brief Оператор неравенства
+     * @details Сравнивает значения полиномов в точке x=2
      */
     friend bool operator!=(const Polynomial& lhs, const Polynomial& rhs) {
         return lhs.evaluate(2) != rhs.evaluate(2);
     }
+    
+    /** @} */ // конец группы ComparisonOperations
 
     /**
      * @brief Вычисляет значение полинома в заданной точке
+     * @param x Точка для вычисления
+     * @return Значение полинома в точке x: a*x² + b*x + c
      */
     double evaluate(double x) const {
         return a * x * x + b * x + c;
     }
 
     /**
-     * @brief Выводит полином в формате "ax² + bx + c"
+     * @brief Выводит полином в читаемом формате
+     * @details Формат вывода: "ax^2 + bx + c"
+     * Пример: "3.5x^2 + -2x + 1"
      */
     void print() const {
         std::cout << a << "x^2 + " << b << "x + " << c;
     }
 
     /**
-     * @brief Возвращает количество вычислений корней
+     * @defgroup GetterMethods Геттеры
+     * @brief Методы для получения значений коэффициентов
+     * @{
      */
-    static int getRootCalculationCount() {
-        return rootCalculationCount;
-    }
-
+    
     /**
-     * @brief Возвращает количество созданных экземпляров
+     * @brief Возвращает коэффициент a
+     * @return Коэффициент при x²
      */
-    static int getInstanceCount() {
-        return instanceCount;
-    }
-
-    /**
-     * @brief Сбрасывает всю статистику
-     */
-    static void resetStatistics() {
-        cleanupStaticData();
-    }
-
     double getA() const { return a; }
+    
+    /**
+     * @brief Возвращает коэффициент b
+     * @return Коэффициент при x
+     */
     double getB() const { return b; }
+    
+    /**
+     * @brief Возвращает коэффициент c
+     * @return Свободный член
+     */
     double getC() const { return c; }
+    
+    /** @} */ // конец группы GetterMethods
 };
 
+/** @} */ // конец группы PolynomialClass
+
+// Инициализация статических членов класса Polynomial
 int Polynomial::rootCalculationCount = 0;
 int Polynomial::instanceCount = 0;
 
@@ -491,18 +720,34 @@ int Polynomial::rootCalculationEntries = 0;
 bool Polynomial::programFinished = false;
 
 /**
+ * @defgroup HelperStructures Вспомогательные структуры
+ * @brief Структуры для поддержки работы программы
+ * @{
+ */
+
+/**
  * @struct PolynomialArray
  * @brief Динамический массив для хранения полиномов
+ * 
+ * @details
+ * Реализует динамический массив с автоматическим управлением памятью.
+ * Поддерживает добавление элементов и автоматическое расширение при необходимости.
  */
 struct PolynomialArray {
-    Polynomial* data;   
-    int capacity;       
-    int count;          
-
+    Polynomial* data;   ///< Указатель на массив полиномов
+    int capacity;       ///< Текущая емкость массива
+    int count;          ///< Количество элементов в массиве
+    
+    /**
+     * @brief Конструктор по умолчанию
+     * @post Инициализирует пустой массив
+     */
     PolynomialArray() : data(nullptr), capacity(0), count(0) {}
     
     /**
      * @brief Добавляет полином в массив
+     * @param p Полином для добавления
+     * @post Массив автоматически расширяется при необходимости
      */
     void add(const Polynomial& p) {
         if (count >= capacity) {
@@ -524,6 +769,7 @@ struct PolynomialArray {
     
     /**
      * @brief Очищает массив
+     * @post Освобождает всю занятую память
      */
     void clear() {
         delete[] data;
@@ -532,13 +778,34 @@ struct PolynomialArray {
         count = 0;
     }
     
+    /**
+     * @brief Деструктор
+     * @post Автоматически вызывает clear()
+     */
     ~PolynomialArray() {
         clear();
     }
 };
 
+/** @} */ // конец группы HelperStructures
+
+/**
+ * @defgroup HelperFunctions Вспомогательные функции
+ * @brief Функции для поддержки работы программы
+ * @{
+ */
+
 /**
  * @brief Выводит корни уравнения в читаемом формате
+ * @param root1 Первый корень
+ * @param root2 Второй корень
+ * @param numRoots Количество корней (0, 1 или 2)
+ * 
+ * @details
+ * Форматированный вывод корней:
+ * - 0 корней: "Net deystvitelnyh korney"
+ * - 1 корень: "Odin koren: x = value"
+ * - 2 корня: "Dva kornya: x1 = value1, x2 = value2"
  */
 void printRoots(double root1, double root2, int numRoots) {
     if (numRoots == 0) {
@@ -552,6 +819,18 @@ void printRoots(double root1, double root2, int numRoots) {
 
 /**
  * @brief Тестирует все операции для заданного полинома
+ * @param p Полином для тестирования
+ * @return true - вернуться в главное меню, false - продолжить тестирование
+ * 
+ * @details
+ * Предоставляет интерактивное меню для тестирования:
+ * 1. Унарные операции (++, --)
+ * 2. Бинарные операции (+, -, *, /)
+ * 3. Операции сравнения
+ * 4. Нахождение корней
+ * 5. Вычисление значения
+ * 6. Вернуться к выбору полинома
+ * 7. Вернуться в главное меню
  */
 bool testAllOperations(Polynomial& p) {
     std::cout << "\n----- Test vseh operaciy dlya polynoma: ";
@@ -704,8 +983,20 @@ bool testAllOperations(Polynomial& p) {
     } while (true);
 }
 
+/** @} */ // конец группы HelperFunctions
+
 /**
  * @brief Главная функция программы
+ * @return 0 при успешном завершении
+ * 
+ * @details
+ * Реализует интерактивное меню:
+ * 1. Создать полином (ручной ввод)
+ * 2. Протестировать все операции
+ * 3. Узнать статистику вычисления корней
+ * 4. Выход
+ * 
+ * При выходе автоматически выводится статистика и очищается память.
  */
 int main() {
     std::cout << "=== Quadratic Polynomial Calculator ===" << std::endl;
