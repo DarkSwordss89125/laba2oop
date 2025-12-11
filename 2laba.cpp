@@ -252,9 +252,9 @@ public:
             if (b != 0) {
                 root1 = -c / b;
                 numRoots = 1;
-                calcInfo += " -> Linear equation, root: " + std::to_string(root1);
+                calcInfo += " -> Lineinoe uravnenie, koren: " + std::to_string(root1);
             } else {
-                calcInfo += " -> Constant, no roots";
+                calcInfo += " -> Constant, net kornei";
             }
         } else {
             double discriminant = b * b - 4 * a * c;
@@ -263,14 +263,14 @@ public:
                 root1 = (-b + sqrt(discriminant)) / (2 * a);
                 root2 = (-b - sqrt(discriminant)) / (2 * a);
                 numRoots = 2;
-                calcInfo += " -> Two roots: " + std::to_string(root1) + 
+                calcInfo += " -> Dva kornya: " + std::to_string(root1) + 
                            ", " + std::to_string(root2);
             } else if (discriminant == 0) {
                 root1 = -b / (2 * a);
                 numRoots = 1;
-                calcInfo += " -> One root: " + std::to_string(root1);
+                calcInfo += " -> Odin koren: " + std::to_string(root1);
             } else {
-                calcInfo += " -> No real roots (discriminant < 0)";
+                calcInfo += " -> Net deistvitelnih korney (discriminant < 0)";
             }
         }
         
